@@ -1,0 +1,13 @@
+{
+    "vulnID": "V0340",
+    "severity": 2,
+    "desc": "Must Display MOTD banner (DoD Text)",
+    "part_of_stig":
+    [
+        "13ir",
+        "13pr",
+        "13is",
+        "13ps",
+        "12as"
+    ]
+}
