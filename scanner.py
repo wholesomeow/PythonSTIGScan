@@ -20,13 +20,17 @@ def importArgs():
     group.add_argument('--xml', 
                         type=str, 
                         help='Converts STIG XML file to JSON')
+    group.add_argument('--start',
+                       type=str,
+                       help='Use once XML and STIG have been loaded into the script to being the scan')
+    
 
     return parser.parse_args()
 
 def convertJSON():
     # Create Convertion Loop Variables
         clean_keys = ['ID', 'Rule']
-        clean_subkeys = ['Severity', 'Explaination', 'Fix_Action', 'Enable', 'Command_Block', 'Fail_Value']
+        clean_subkeys = ['Severity', 'Explaination', 'Fix_Action', 'Enable', 'Command_Block', 'Fail_Value', 'Global']
         clean_data = []
         result_data = []
         
@@ -68,18 +72,34 @@ def convertJSON():
                         value = 10
                     clean_subdata.append(value)
                     
+                    # Global Check
+                    raction = re.findall(r'#int', action)
+                    gvar = 0
+                    if raction:
+                        gvar += 1
+                    else:
+                        gvar += 0
+    
+                    if gvar == 0:
+                        clean_subdata.append(True)
+                    elif gvar > 0:
+                        clean_subdata.append(False)
+                    else:
+                        print('ERROR: Global Check Failed')
+                    
                     clean_data.append(item['@id'])
                     clean_data.append(result_subdata)
 
             # Combine Data and Keys to list                    
                     n = len(clean_subdata)
-                    for idx in range(0, n, 6):
+                    for idx in range(0, n, 7):
                         result_subdata.append({clean_subkeys[0] : clean_subdata[idx],
                                             clean_subkeys[1] : clean_subdata[idx + 1],
                                             clean_subkeys[2] : clean_subdata[idx + 2],
                                             clean_subkeys[3] : clean_subdata[idx + 3],
                                             clean_subkeys[4] : clean_subdata[idx + 4],
-                                            clean_subkeys[5] : clean_subdata[idx + 5]
+                                            clean_subkeys[5] : clean_subdata[idx + 5],
+                                            clean_subkeys[6] : clean_subdata[idx + 6]
                                             })                    
             n = len(clean_data)
             for idx in range(0, n, 2):
@@ -93,19 +113,66 @@ def convertJSON():
         with open('clean_data.json', 'w') as cleandata:
             cleandata.write(clean_json)
             cleandata.close()            
-            
-        with open('clean_data.json', 'r') as cleandata:
-            data = json.load(cleandata)
-            print('Creating additional data')
-            
-        # Populate Enable field in clean_data.json
-            
-        # Populate Fail Value field in clean_data.json
+
+def scanBegin():
+    
+    # TEMP: Import args to parse config
+    parse = CiscoConfParse('IOS_XE_PreSTIG.conf')
         
-        # Populate Command Block field in clean_data.json
+    # TEMP: Pull Global Vuln from clean_data.json
+    with open('clean_data.json', 'r') as data_json:
+        data = json.load(data_json)
+        print('Starting Scan')
+        print('TEMP: Pulling Global vulnerabilities only')
+        
+        i = 0
+        r = len(data)
+        for i in range(0, r, 1):
+            rule = data[i]['Rule'][0]['Global']
+            cmd = data[i]['Rule'][0]['Command_Block']
+            vuln = data[i]['ID']
+            fval = data[i]['Rule'][0]['Fail_Value']
+            if rule == True or (rule == True and cmd == ''):
                 
+                # Logic for scanning starts here
+                idx = 0
+                for idx in range(0, len(cmd), 1):
+                    curcmd = cmd[idx]
+                    
+                    curvuln = re.findall(r'-(.*)', str(vuln))
+                    cleanparse = re.findall(r'#(.*)', str(curcmd))
+                    
+                    # Escape special characters in cleanparse
+                    splist = list(str(cleanparse))
+                    for i in range(0, len(splist), 1):
+                        if i == '-':
+                            loc = splist.index('-')
+                            splist.insert(loc - 1, '\\')
+                        else:
+                            continue
+                    cparse = ''
+                    cparse.join(splist)
+                    
+                    # CCP Parse Logic
+                    for obj in parse.find_objects(str(cparse)):
+                        if obj == True:
+                            continue
+                        elif obj != True:
+                            # TODO: Turn this into a result.json
+                            # TODO: Also, make this only scan global vulnerabilities - it's currently not
+                            print(str(curvuln))
+                            print(str(cleanparse))
+                            print(int(fval))
+                            break
+                        else:
+                            print('ERROR: Failed to properly parse config')
+                    idx += 1
+            else:
+                continue
+            i += 1
+        print('Scan Complete')
+        data_json.close()
                 
-            cleandata.close()
 
 def main():
     
@@ -143,18 +210,15 @@ def main():
     if converted:
         convertJSON()
         
-        # Parse Fix Action        
-        with open('clean_data.json', 'r') as cleandata:
-            data = json.load(cleandata)
-
-            i = 0
-            for fix in data:
-                fix = data[i]['Rule'][0]['Fix_Action']
-                i += 1
-        
-            cleandata.close()                           
+        #Clean old files
+        print('Cleaning old files')
+        os.remove('data.json')
+                                 
     elif configLoaded:
-        print(None)
+        print('Configuration Loaded. Good to being scan')
+        scanReady = True
+        
+    scanBegin()
     
     print('Complete')
     sys.exit(fail_count)

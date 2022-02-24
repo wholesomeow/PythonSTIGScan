@@ -23,7 +23,8 @@
                     "config)#no service udp-small-servers",
                     "config)#no service pad"
                 ],
-                "Fail_Value": 10
+                "Fail_Value": 10,
+                "Global": true
             }
         ]
     },
@@ -59,7 +60,8 @@
                     "config-if-range)#end ",
                     "for VoIP phone + PC) or multi-auth (multiple PCs connected to a hub) can be configured as alternatives."
                 ],
-                "Fail_Value": 15
+                "Fail_Value": 15,
+                "Global": false
             }
         ]
     },
@@ -75,7 +77,8 @@
                     "VTP) messages with a hash function using a configured password as shown in the example below:",
                     "config)#vtp password xxxxxxxxx"
                 ],
-                "Fail_Value": 10
+                "Fail_Value": 10,
+                "Global": true
             }
         ]
     },
@@ -120,7 +123,8 @@
                     "config-if)#service-policy output QOS_POLICY_SWITCHPORT",
                     "config-if)#end."
                 ],
-                "Fail_Value": 10
+                "Fail_Value": 10,
+                "Global": false
             }
         ]
     },
@@ -136,7 +140,8 @@
                     "config)#monitor session 1 source int g0/3",
                     "config)#monitor session 1 destination int g0/2"
                 ],
-                "Fail_Value": 10
+                "Fail_Value": 10,
+                "Global": true
             }
         ]
     },
@@ -152,7 +157,8 @@
                     "config)#monitor session 1 source int g0/3",
                     "config)#monitor session 1 destination int g0/2"
                 ],
-                "Fail_Value": 10
+                "Fail_Value": 10,
+                "Global": true
             }
         ]
     },
@@ -188,7 +194,8 @@
                     "config-if-range)#end ",
                     "for VoIP phone + PC) or multi-auth (multiple PCs connected to a hub) can be configured as alternatives."
                 ],
-                "Fail_Value": 10
+                "Fail_Value": 10,
+                "Global": false
             }
         ]
     },
@@ -204,7 +211,8 @@
                     "config)#int range g0/0 - 9",
                     "config-if-range)#spanning-tree guard root"
                 ],
-                "Fail_Value": 5
+                "Fail_Value": 5,
+                "Global": false
             }
         ]
     },
@@ -220,7 +228,8 @@
                     "config)#int range g0/0 - 9",
                     "config-if-range)#spanning-tree bpduguard enable"
                 ],
-                "Fail_Value": 10
+                "Fail_Value": 10,
+                "Global": false
             }
         ]
     },
@@ -233,7 +242,8 @@
                 "Fix_Action": "Configure the switch to have STP Loop Guard enabled via the spanning-tree loopguard default global command.\n\n",
                 "Enable": true,
                 "Command_Block": [],
-                "Fail_Value": 10
+                "Fail_Value": 10,
+                "Global": true
             }
         ]
     },
@@ -250,7 +260,8 @@
                     "config)#int range g0/0 - 9",
                     "config-if-range)#switchport block unicast"
                 ],
-                "Fail_Value": 10
+                "Fail_Value": 10,
+                "Global": false
             }
         ]
     },
@@ -266,7 +277,8 @@
                     "config)#ip dhcp snooping",
                     "config)#ip dhcp snooping vlan 2,4-8,11"
                 ],
-                "Fail_Value": 10
+                "Fail_Value": 10,
+                "Global": true
             }
         ]
     },
@@ -282,7 +294,8 @@
                     "config)#int range g0/0 - 9",
                     "config-if-range)#ip verify source"
                 ],
-                "Fail_Value": 10
+                "Fail_Value": 10,
+                "Global": false
             }
         ]
     },
@@ -298,7 +311,8 @@
                     "ARP) Inspection (DAI) enabled on all user VLANs as shown in the example below:",
                     "config)#ip arp inspection vlan 2,4-8,11"
                 ],
-                "Fail_Value": 10
+                "Fail_Value": 10,
+                "Global": true
             }
         ]
     },
@@ -315,7 +329,8 @@
                     "config-if-range)#storm-control unicast bps 62000000",
                     "config-if-range)#storm-control broadcast bps 20000000"
                 ],
-                "Fail_Value": 5
+                "Fail_Value": 5,
+                "Global": false
             }
         ]
     },
@@ -330,7 +345,8 @@
                 "Command_Block": [
                     "config)#ip igmp snooping"
                 ],
-                "Fail_Value": 5
+                "Fail_Value": 5,
+                "Global": true
             }
         ]
     },
@@ -346,7 +362,8 @@
                     "config)#spanning-tree mode rapid-pvst",
                     "config)#spanning-tree mode mst"
                 ],
-                "Fail_Value": 10
+                "Fail_Value": 10,
+                "Global": true
             }
         ]
     },
@@ -364,7 +381,8 @@
                     "config)#int g0/1",
                     "config-if)#udld port"
                 ],
-                "Fail_Value": 10
+                "Fail_Value": 10,
+                "Global": false
             }
         ]
     },
@@ -381,7 +399,8 @@
                     "config-if)#switchport mode trunk",
                     "config-if)#switchport nonegotiate"
                 ],
-                "Fail_Value": 10
+                "Fail_Value": 10,
+                "Global": true
             }
         ]
     },
@@ -399,7 +418,8 @@
                     "config)#int g1/1",
                     "config-if)#switchport trunk allowed vlan except 999"
                 ],
-                "Fail_Value": 10
+                "Fail_Value": 10,
+                "Global": false
             }
         ]
     },
@@ -412,7 +432,8 @@
                 "Fix_Action": "Remove the assignment of the default VLAN from all access switch ports.\n\n",
                 "Enable": true,
                 "Command_Block": [],
-                "Fail_Value": 10
+                "Fail_Value": 10,
+                "Global": true
             }
         ]
     },
@@ -428,7 +449,8 @@
                     "config)#int g0/2",
                     "config-if)#switchport trunk allowed vlan except 1"
                 ],
-                "Fail_Value": 10
+                "Fail_Value": 10,
+                "Global": false
             }
         ]
     },
@@ -445,7 +467,8 @@
                     "config-if)#ip add 10.1.22.3 255.255.255.0",
                     "config-if)#no shut"
                 ],
-                "Fail_Value": 10
+                "Fail_Value": 10,
+                "Global": false
             }
         ]
     },
@@ -462,7 +485,8 @@
                     "config-if)#switchport mode access",
                     "config-if)#end"
                 ],
-                "Fail_Value": 10
+                "Fail_Value": 10,
+                "Global": false
             }
         ]
     },
@@ -479,7 +503,8 @@
                     "config)#int g0/1",
                     "config-if)#switchport trunk native vlan 44"
                 ],
-                "Fail_Value": 10
+                "Fail_Value": 10,
+                "Global": false
             }
         ]
     },
@@ -492,7 +517,8 @@
                 "Fix_Action": "Configure all access switch ports to a VLAN other than the native VLAN.\n\n",
                 "Enable": true,
                 "Command_Block": [],
-                "Fail_Value": 5
+                "Fail_Value": 5,
+                "Global": true
             }
         ]
     }
