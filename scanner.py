@@ -8,6 +8,7 @@ import re
 import sys
 import argparse
 import xmltodict
+from datetime import datetime
 from ciscoconfparse import CiscoConfParse
 
 def importArgs():
@@ -59,7 +60,7 @@ def convertJSON():
                     clean_subdata.append(res)
                     
                     # Value that contains specific commands to parse against config
-                    paction = re.findall(r'\((.*)', action)
+                    paction = re.findall(r'\(config(.*)', action)
                     clean_subdata.append(paction)
                     
                     # Value that returns points for each section of each vulnerability - points earned on failure
@@ -116,14 +117,20 @@ def convertJSON():
 
 def scanBegin():
     
+    res = []
+    passes = []
+    failures = []
+    
     # TEMP: Import args to parse config
-    parse = CiscoConfParse('IOS_XE_PreSTIG.conf')
+    parse = CiscoConfParse('IOS_XE_PreSTIG.conf', factory=True, syntax='ios')
         
     # TEMP: Pull Global Vuln from clean_data.json
     with open('clean_data.json', 'r') as data_json:
         data = json.load(data_json)
         print('Starting Scan')
         print('TEMP: Pulling Global vulnerabilities only')
+
+        resultname = 'result.json'
         
         i = 0
         r = len(data)
@@ -131,7 +138,8 @@ def scanBegin():
             rule = data[i]['Rule'][0]['Global']
             cmd = data[i]['Rule'][0]['Command_Block']
             vuln = data[i]['ID']
-            fval = data[i]['Rule'][0]['Fail_Value']
+            
+            # Global Check
             if rule == True or (rule == True and cmd == ''):
                 
                 # Logic for scanning starts here
@@ -139,30 +147,32 @@ def scanBegin():
                 for idx in range(0, len(cmd), 1):
                     curcmd = cmd[idx]
                     
+                    cleanparse = ''
                     curvuln = re.findall(r'-(.*)', str(vuln))
-                    cleanparse = re.findall(r'#(.*)', str(curcmd))
+                    cleanparse = str(re.findall(r'#(.*)', str(curcmd)))
                     
-                    # Escape special characters in cleanparse
-                    splist = list(str(cleanparse))
-                    for i in range(0, len(splist), 1):
-                        if i == '-':
-                            loc = splist.index('-')
-                            splist.insert(loc - 1, '\\')
-                        else:
-                            continue
-                    cparse = ''
-                    cparse.join(splist)
+                    remChar = "[]'"
+                    for bracket in remChar:
+                        cleanparse = cleanparse.replace(bracket, '')
+                    preparse = cleanparse
+                    cleanparse = cleanparse.replace(' ', '\s')
+                    cleanparse = "r'" + cleanparse + "'"
+                    print(cleanparse)
                     
                     # CCP Parse Logic
-                    for obj in parse.find_objects(str(cparse)):
-                        if obj == True:
+                    # FIXME: Not actually parsing anything, for loop not activiating
+                    for obj in parse.find_objects(cleanparse):
+                        print('obj')
+                        print(obj)
+                        if obj.text == preparse:
+                            print('ID:' + str(curvuln) + 'Pass')
+                            find = 'ID:' + str(curvuln) + ' Pass'
+                            res.append(find)
                             continue
-                        elif obj != True:
-                            # TODO: Turn this into a result.json
-                            # TODO: Also, make this only scan global vulnerabilities - it's currently not
-                            print(str(curvuln))
-                            print(str(cleanparse))
-                            print(int(fval))
+                        elif obj.text != preparse:
+                            print('ID:' + str(curvuln) + 'Fail')
+                            find = 'ID:' + str(curvuln) + ' Fail'
+                            res.append(find)
                             break
                         else:
                             print('ERROR: Failed to properly parse config')
@@ -170,10 +180,16 @@ def scanBegin():
             else:
                 continue
             i += 1
+            
         print('Scan Complete')
         data_json.close()
-                
-
+        
+        print('Writing Results')
+        scan_result = json.dumps(res, indent=4, sort_keys=False)
+        with open(resultname, 'w') as d:
+            d.write(scan_result)
+            d.close()
+        
 def main():
     
     # Process Arguments
